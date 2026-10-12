@@ -1,0 +1,8 @@
+node_modules/
+.pingroom/
+.env
+.env.*
+!.env.example
+output/
+*.log
+.DS_Store

@@ -1,0 +1,17 @@
+{
+  "name": "pingroom-starter-job-progress",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Keep a PingRoom live card updated while a Node.js job runs.",
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "connect": "node src/connect.js",
+    "start": "node src/main.js",
+    "demo": "node src/demo.js",
+    "test": "node --test"
+  },
+  "dependencies": { "@pingroom/sdk": "0.7.0" },
+  "license": "MIT",
+  "repository": { "type": "git", "url": "https://github.com/pingroom/starter-job-progress.git" }
+}
