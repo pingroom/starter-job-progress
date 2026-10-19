@@ -73,7 +73,11 @@ export async function runJob({
   }
 
   let completionSent = true;
-  try { await publish(liveStatus.done(jobId, 'Job complete')); }
-  catch (error) { warnings.push(error); completionSent = false; }
+  try {
+    const completion = await publish(liveStatus.done(jobId, 'Job complete'));
+    // A stream the server already ended (no update for 15 minutes) answers
+    // with its stored terminal state instead of applying this one.
+    if (completion?.state !== 'done') throw new Error('PingRoom had already ended this live card.');
+  } catch (error) { warnings.push(error); completionSent = false; }
   return { jobId, value, warnings, completionSent };
 }

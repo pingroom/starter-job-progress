@@ -62,7 +62,9 @@ console.log(result.value, result.completionSent);
 preceding step's return value and an `AbortSignal`. Split long work into meaningful
 steps; the runner publishes progress at step boundaries, at most once every 11
 seconds. A quick job may show only its start and completion. All steps execute
-even when an intermediate progress update is skipped or fails.
+even when an intermediate progress update is skipped or fails. PingRoom ends a
+robot's live card as failed after about 15 minutes without an update, so keep
+steps well under that. If that happens, the runner returns `completionSent: false`.
 
 The first card must be established before any job step runs. If that request
 fails, the runner attempts cleanup and throws without starting work. A task error

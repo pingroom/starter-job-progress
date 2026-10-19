@@ -87,6 +87,27 @@ test('successful work remains successful when the final notification fails', asy
   assert.equal(result.warnings.length, 1);
 });
 
+test('a completion replayed onto a stream the server already failed is not reported as sent', async () => {
+  const sent = [];
+  const client = new PingRoom({
+    token: 'offline-test', baseUrl: 'https://offline.invalid', timeoutMs: 100,
+    async fetch(url, options) {
+      const body = JSON.parse(options.body);
+      sent.push(body);
+      // The stale sweep ended the stream as failed; a later done is an idempotent replay.
+      const state = body.live_status.state === 'done' ? 'failed' : 'started';
+      return new Response(JSON.stringify({ notification_id: 'notification', correlation_id: body.correlation_id, state, idempotent: state === 'failed' }), {
+        headers: { 'content-type': 'application/json' },
+      });
+    },
+  });
+  const result = await runJob({ client, room: 'test-room', jobId: 'test-job', steps: [{ label: 'Work', run: async () => 'saved' }] });
+  assert.equal(result.value, 'saved');
+  assert.equal(result.completionSent, false);
+  assert.equal(result.warnings.length, 1);
+  assert.deepEqual(sent.map((ping) => ping.live_status.state), ['running', 'done']);
+});
+
 test('failed stream creation prevents application work and attempts cleanup', async () => {
   const job = setup((_, count) => { if (count === 1) throw new Error('Create failed'); });
   let ran = false;
